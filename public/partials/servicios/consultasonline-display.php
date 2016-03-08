@@ -50,13 +50,18 @@ else:
 	
 	<section class="container-wrap main-color">
 		<div class="section-container container">
+			
 			<div class="row servicio-consulta-online">
+				
+				<!-- HEADER -->
 				<div class="col-sm-12 wpb_column column_container border-bottom">
 					<div class="wpb_wrapper Centrar">
 						<h2 name="consulta" id="consulta"><?php echo $servicio->post_title; ?></h2>
 					</div>
 				</div>
 				
+				
+				<!-- COLUMNA IZQUIERDA -->
 				<div class="col-sm-5 wpb_column column_container">
 					<div class="wpb_wrapper">
 						<?php if ( !$es_proveedor ): ?>
@@ -112,74 +117,77 @@ else:
 						
 					</div> 
 				</div> 
-			
+				
+				<!-- CHAT -->
 				<div class="col-sm-7 wpb_column column_container">
 					<div class="wpb_wrapper">					
-						
-						<?php 
-						if ( !$es_proveedor || isset($wp_query->query_vars['id_usuario'] ) ): 
 													
-							$consultas = $this->ver_mis_consultas_online( $this->id_servicio , $this->id_usuario , $proveedor->ID  );  ?>
+						<form name="consulta-form" id="consulta-form" class="standard-form" action="<?php echo add_query_arg('id_servicio' , $this->id_servicio ) ?>" method="post">
 							
-							<form name="consulta-form" id="consulta-form" class="standard-form" action="<?php echo add_query_arg('id_servicio' , $this->id_servicio ) ?>" method="post">
+							<?php if (isset($id_cita) ): ?>
+								<h2><?php echo $consulta_online[0]->asesoria_titulo ?></h2>
+								<input type="hidden" name="asesoria_titulo" placeholder="Nombre de tu consulta" value="<?php echo $consulta_online[0]->asesoria_titulo ?>" maxlength="70" readonly />
 								
-								<input type="text" name="asesoria_texto" placeholder="Nombre de tu consulta" value="<?php echo isset($id_cita) ? $consulta_online[0]->asesoria_titulo : "" ?>" maxlength="70" <?php echo isset($id_cita) ? "readonly" : "" ?> />
-																						
-								<div class="Consultas" id="Consulta_">
-									<?php foreach ($consultas as $key=>$consulta): ?>
-										<div class="Consulta" id="Consulta_<?php echo($key); ?>">
-											<header>
-												<?php 
-												if ($consulta->asesoria_autor == $servicio->post_author ): ?>
-													<div class="imagen_proveedor">
-														<?php echo get_avatar( $servicio->post_author, 64 ); ?>
+							<?php else: ?>	
+								<input type="text" name="asesoria_titulo" placeholder="Nombre de tu consulta" maxlength="70" />
+							
+							<?php endif; ?>	
+																												
+							<div class="Consultas" id="Consulta_">
+								<?php foreach ($consulta_online as $key => $consulta): ?>
+									<div class="Consulta" id="Consulta_<?php echo($key); ?>">
+										<header>
+											<?php 
+											if ($consulta->asesoria_autor == $servicio->post_author ): ?>
+												<div class="imagen_proveedor">
+													<?php echo get_avatar( $servicio->post_author, 64 ); ?>
+												</div>
+											<?php endif; ?>
+											
+											<h4 class="fecha"><?php echo($consulta->update_time); ?></h4>
+											
+											<?php 
+											if ( isset($this->id_usuario) ): 
+												if ($consulta->asesoria_autor == $this->id_usuario): ?>
+													<div class="imagen_usuario">
+														<?php echo get_avatar( $this->id_usuario , 64 ); ?>
 													</div>
 												<?php endif; ?>
-												
-												<h4 class="fecha"><?php echo($consulta->update_time); ?></h4>
-												
-												<?php 
-												if ( isset($this->id_usuario) ): 
-													if ($consulta->asesoria_autor == $this->id_usuario): ?>
-														<div class="imagen_usuario">
-															<?php echo get_avatar( $this->id_usuario , 64 ); ?>
-														</div>
-													<?php endif; ?>
-												<?php
-												else:
-													if ($consulta->asesoria_autor == $current_user->ID): ?>
-														<div class="imagen_usuario">
-															<?php echo get_avatar( $current_user->ID, 64 ); ?>
-														</div>
-													<?php 
-													endif; ?>
+											<?php
+											else:
+												if ($consulta->asesoria_autor == $current_user->ID): ?>
+													<div class="imagen_usuario">
+														<?php echo get_avatar( $current_user->ID, 64 ); ?>
+													</div>
 												<?php 
 												endif; ?>
-													
-											</header>
+											<?php 
+											endif; ?>
 												
-											<div class="Contenido_consulta">
-												<?php echo($consulta->asesoria_texto); ?>
-											</div>	
-																			
-										</div>
-									<?php 
-									endforeach; 
-									?>
-								</div>
-								
-								<textarea id="nueva_consulta" class="gui-textarea" name="nueva_consulta" placeholder="Escribe aqu&iacute; lo que deseas consultar"></textarea>
+										</header>
+											
+										<div class="Contenido_consulta">
+											<?php echo($consulta->asesoria_texto); ?>
+										</div>	
+																		
+									</div>
+								<?php 
+								endforeach; 
+								?>
+							</div>
 							
-								<input type="submit" class="btn btn-primary btn-lg" name="wp-submit-consulta" id="submit-consulta" value="Enviar" tabindex="100" />								
-								<input type="hidden" name="id_servicio" value="<?php echo $this->id_servicio; ?>" />
-								<input type="hidden" name="id_provider" value="<?php echo $proveedor->ID; ?>" />
-								<input type="hidden" name="id_usuario" value="<?php echo $this->id_usuario; ?>" />
-								<input type="hidden" name="id_cita" value="<?php echo isset($id_cita) ? $id_cita : "" ?>" />
-								<input type="hidden" name="action" value="post" />
-								<?php wp_nonce_field( 'guardar_consulta_online' , 'nonce_consulta_online' ); ?>
-							</form>
+							<textarea id="nueva_consulta" class="gui-textarea" name="asesoria_texto" placeholder="Escribe aqu&iacute; lo que deseas consultar"></textarea>
 						
-						<?php endif; ?>
+							<input type="submit" class="btn btn-primary btn-lg" name="wp-submit-consulta" id="submit-consulta" value="Enviar" tabindex="100" />								
+							<input type="hidden" name="id_servicio" value="<?php echo $this->id_servicio; ?>" />
+							<input type="hidden" name="id_provider" value="<?php echo $proveedor->ID; ?>" />
+							<input type="hidden" name="id_usuario" value="<?php echo $this->id_usuario; ?>" />
+							<input type="hidden" name="id_cita" value="<?php echo isset($id_cita) ? $id_cita : "" ?>" />
+							<input type="hidden" name="action" value="post" />
+							<?php wp_nonce_field( 'guardar_consulta_online' , 'nonce_consulta_online' ); ?>
+						</form>
+						
+
 					</div> 
 				</div> 
 			</div>
